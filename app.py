@@ -134,4 +134,4 @@ def get_song_url():
 
 if __name__ == "__main__":
     # 运行 Flask 应用
-    app.run(debug=True)
+    app.run(debug=False)
