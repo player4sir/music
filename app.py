@@ -24,11 +24,11 @@ def get_song_url_from_api(mp3_id):
         if data['code'] == 1:
             return data['data']['url']
         else:
-            print(f"API Error: {data['msg']}")
+            # print(f"API Error: {data['msg']}")
             return None
 
     except requests.exceptions.RequestException as request_exception:
-        print(f"Request Exception: {request_exception}")
+        # print(f"Request Exception: {request_exception}")
         return None
 
 # 从关键词中获取搜索数据            
@@ -78,11 +78,11 @@ def search_and_extract(keyword):
                         # Extract song information
                         song_name = row.select_one('.col-5 a').text.strip()
                         artist_name = row.select_one('.text-success').text.strip()
-
                         # Extract and clean up download link
                         download_link = row.select_one('.col-3 a')['href'].replace('/music/', '')
-
-                        songs.append({'song_name': song_name, 'artist_name': artist_name, 'id': download_link})
+                        link = get_song_url_from_api(download_link)
+                        if (link != 'kuwo.cn') and (link is not None):
+                            songs.append({'name': song_name, 'artist': artist_name, 'id': download_link,'link':link})                      
                     except AttributeError:
                         # Skip rows without .col-5 a element
                         continue
@@ -100,7 +100,7 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST'
     return response
 
-@app.route('/search', methods=['GET'])
+@app.route('/api', methods=['GET'])
 def search():
     # 获取查询关键词
     search_keyword = request.args.get('keyword')
@@ -112,26 +112,26 @@ def search():
     search_results = search_and_extract(search_keyword)
 
     if search_results:
-        return add_cors_headers(jsonify({"songs": search_results}))
+        return add_cors_headers(jsonify({"data": search_results}))
     else:
         return add_cors_headers(jsonify({"error": "Search failed"})), 500
 
-@app.route('/link', methods=['GET'])
-def get_song_url():
-    # 获取歌曲 mp3_id
-    mp3_id = request.args.get('id')
+# @app.route('/link', methods=['GET'])
+# def get_song_url():
+#     # 获取歌曲 mp3_id
+#     mp3_id = request.args.get('id')
 
-    if not mp3_id:
-        return add_cors_headers(jsonify({"error": "Missing 'mp3_id' parameter"})), 400
+#     if not mp3_id:
+#         return add_cors_headers(jsonify({"error": "Missing 'mp3_id' parameter"})), 400
 
-    # 获取歌曲链接
-    song_url = get_song_url_from_api(mp3_id)
+#     # 获取歌曲链接
+#     song_url = get_song_url_from_api(mp3_id)
 
-    if song_url:
-        return add_cors_headers(jsonify({"song_url": song_url}))
-    else:
-        return add_cors_headers(jsonify({"error": "Failed to get song URL"})), 500
+#     if song_url:
+#         return add_cors_headers(jsonify({"song_url": song_url}))
+#     else:
+#         return add_cors_headers(jsonify({"error": "Failed to get song URL"})), 500
 
 if __name__ == "__main__":
     # 运行 Flask 应用
-    app.run(debug=False)
+    app.run(debug=True)
