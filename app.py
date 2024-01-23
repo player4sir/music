@@ -94,11 +94,11 @@ def search_and_extract(keyword):
         return None
 
 # CORS头部设置
-def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST'
-    return response
+# def add_cors_headers(response):
+#     response.headers['Access-Control-Allow-Origin'] = '*'
+#     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+#     response.headers['Access-Control-Allow-Methods'] = 'GET, POST'
+#     return response
 
 @app.route('/api', methods=['GET'])
 def search():
@@ -112,9 +112,9 @@ def search():
     search_results = search_and_extract(search_keyword)
 
     if search_results:
-        return add_cors_headers(jsonify({"data": search_results}))
+        return jsonify({"data": search_results})
     else:
-        return add_cors_headers(jsonify({"error": "Search failed"})), 500
+        return jsonify({"error": "Search failed"}), 500
 
 # @app.route('/link', methods=['GET'])
 # def get_song_url():
